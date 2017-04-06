@@ -107,12 +107,33 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual QuerySourceMapping QuerySourceMapping { get; } = new QuerySourceMapping();
 
         /// <summary>
+        ///     Gets the mapping to query source
+        /// </summary>
+        /// <value>
+        ///     The mapping to query source
+        /// </value>
+        public virtual Dictionary<IQuerySource, IEntityType> QuerySourceEntityTypeMapping { get; } = new Dictionary<IQuerySource, IEntityType>();
+
+        /// <summary>
         ///     Adds or updates the expression mapped to a query source.
         /// </summary>
         /// <param name="querySource"> The query source. </param>
         /// <param name="expression"> The expression mapped to the query source. </param>
         public virtual void AddOrUpdateMapping(
             [NotNull] IQuerySource querySource, [NotNull] Expression expression)
+            => AddOrUpdateMappingImpl(querySource, expression, null);
+
+        /// <summary>
+        ///     Adds or updates the expression mapped to a query source.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <param name="expression"> The expression mapped to the query source. </param>
+        /// <param name="entityType"> The mapped entity type. </param>
+        public virtual void AddOrUpdateMapping(
+            [NotNull] IQuerySource querySource, [NotNull] Expression expression, [NotNull] IEntityType entityType)
+            => AddOrUpdateMappingImpl(querySource, expression, Check.NotNull(entityType, nameof(entityType)));
+
+        private void AddOrUpdateMappingImpl(IQuerySource querySource, Expression expression, IEntityType entityType)
         {
             Check.NotNull(querySource, nameof(querySource));
             Check.NotNull(expression, nameof(expression));
@@ -125,10 +146,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 QuerySourceMapping.ReplaceMapping(querySource, expression);
             }
+
+            if (entityType != null)
+            {
+                QuerySourceEntityTypeMapping[querySource] = entityType;
+            }
         }
 
         /// <summary>
-        ///     Gets the query annotations./
+        ///     Gets the query annotations.
         /// </summary>
         /// <value>
         ///     The query annotations.
@@ -220,7 +246,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 if (constantExpression.IsEntityQueryable())
                 {
-                    var entityType = _model.FindEntityType(((IQueryable)constantExpression.Value).ElementType);
+                    var entityQueryable = (IEntityQueryable)constantExpression.Value;
+                    var entityType = entityQueryable.EntityType ?? _model.FindEntityType(entityQueryable.ElementType);
 
                     if (entityType != null)
                     {

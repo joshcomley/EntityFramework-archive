@@ -410,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     $"{parentItemName}.{navigation.Name}",
                     navigation.GetTargetType().ClrType,
                     NullAsyncQueryProvider.Instance
-                        .CreateEntityQueryableExpression(navigation.GetTargetType().ClrType));
+                        .CreateEntityQueryableExpression(navigation.GetTargetType()));
 
             var collectionQuerySourceReferenceExpression
                 = new QuerySourceReferenceExpression(collectionMainFromClause);
