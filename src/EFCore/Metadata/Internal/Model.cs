@@ -54,9 +54,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        /// The service provider to use when calling filters
         /// </summary>
+        public virtual IServiceProvider FiltersServiceProvider { get; private set; }
+
+        /// <summary>
+        /// Configures the service provider to use when calling filters
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        /// <returns></returns>
+        public virtual Model UseServiceProviderForFilters([NotNull]IServiceProvider serviceProvider)
+        {
+            FiltersServiceProvider = serviceProvider;
+            return this;
+        }
+        
+        /// <summary>
+                 ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+                 ///     directly from your code. This API may change or be removed in future releases.
+                 /// </summary>
         public virtual ChangeTrackingStrategy ChangeTrackingStrategy { get; set; }
             = ChangeTrackingStrategy.Snapshot;
 

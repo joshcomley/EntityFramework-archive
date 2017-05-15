@@ -10,7 +10,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -37,12 +39,51 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Adds or updates an annotation on the entity type. If an annotation with the key specified in
-        ///     <paramref name="annotation" /> already exists its value will be updated.
+        /// Adds an entity filter
         /// </summary>
-        /// <param name="annotation"> The key of the annotation to be added or updated. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The same typeBuilder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public virtual EntityTypeBuilder<TEntity> HasFilter([NotNull]Expression<Func<TEntity, bool>> filter)
+        {
+            HasFilter(services => filter);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds an entity filter
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public virtual EntityTypeBuilder<TEntity> HasFilter([NotNull]Func<EntityFilterContext, Expression<Func<TEntity, bool>>> filter)
+        {
+            base.HasFilter(filter);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds an entity filter
+        /// </summary>
+        /// <typeparam name="TFilter"></typeparam>
+        /// <returns></returns>
+        public virtual EntityTypeBuilder<TEntity> HasFilter<TFilter>()
+            where TFilter : IQueryFilter<TEntity>
+        {
+            base.HasFilter(context =>
+            {
+                var filter =
+                    ActivatorUtilities.CreateInstance<TFilter>(context.ServiceProvider);
+                return filter.Filter(context);
+            });
+            return this;
+        }
+        
+        /// <summary>
+                 ///     Adds or updates an annotation on the entity type. If an annotation with the key specified in
+                 ///     <paramref name="annotation" /> already exists its value will be updated.
+                 /// </summary>
+                 /// <param name="annotation"> The key of the annotation to be added or updated. </param>
+                 /// <param name="value"> The value to be stored in the annotation. </param>
+                 /// <returns> The same typeBuilder instance so that multiple configuration calls can be chained. </returns>
         public new virtual EntityTypeBuilder<TEntity> HasAnnotation([NotNull] string annotation, [NotNull] object value)
             => (EntityTypeBuilder<TEntity>)base.HasAnnotation(annotation, value);
 

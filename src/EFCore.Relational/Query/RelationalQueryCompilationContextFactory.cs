@@ -32,19 +32,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new QueryCompilationContext.
         /// </summary>
+        /// <param name="queryFilters"> Query filters for this query. </param>
         /// <param name="async"> true if the query is asynchronous. </param>
         /// <returns>
         ///     A QueryCompilationContext.
         /// </returns>
-        public override QueryCompilationContext Create(bool async)
+        public override QueryCompilationContext Create(IQueryFilters queryFilters, bool async)
             => async
                 ? new RelationalQueryCompilationContext(
-                    Dependencies,
+                    Dependencies.With(queryFilters),
                     new AsyncLinqOperatorProvider(),
                     new AsyncQueryMethodProvider(),
                     TrackQueryResults)
                 : new RelationalQueryCompilationContext(
-                    Dependencies,
+                    Dependencies.With(queryFilters),
                     new LinqOperatorProvider(),
                     new QueryMethodProvider(),
                     TrackQueryResults);

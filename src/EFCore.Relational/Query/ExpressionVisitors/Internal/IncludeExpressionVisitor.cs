@@ -32,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly IQuerySource _querySource;
         private readonly IReadOnlyList<INavigation> _navigationPath;
         private readonly RelationalQueryCompilationContext _queryCompilationContext;
+        private readonly RelationalQueryModelVisitor _relationalQueryModelVisitor;
         private readonly IReadOnlyList<int> _queryIndexes;
         private readonly bool _querySourceRequiresTracking;
 
@@ -73,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _querySource = querySource;
             _navigationPath = navigationPath;
             _queryCompilationContext = queryCompilationContext;
+            _relationalQueryModelVisitor = (RelationalQueryModelVisitor)_queryCompilationContext.CreateQueryModelVisitor();
             _queryIndexes = queryIndexes;
             _querySourceRequiresTracking = querySourceRequiresTracking;
         }
@@ -297,6 +299,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             navigation.IsDependentToPrincipal() ? targetTableExpression : joinExpression,
                             navigation.IsDependentToPrincipal() ? joinExpression : targetTableExpression,
                             querySource);
+
+                    joinExpression.Predicate = _relationalQueryModelVisitor.QueryFilterApplicator.ApplyFilterPredicates(
+                        targetEntityType.ClrType,
+                        joinExpression.Predicate);
 
                     targetTableExpression = joinedTableExpression;
 

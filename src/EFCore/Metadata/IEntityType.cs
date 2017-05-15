@@ -1,8 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -112,5 +115,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The properties defined on this entity. </returns>
         IEnumerable<IProperty> GetProperties();
+
+
+        /// <summary> 
+        /// Filters for this entity. 
+        /// </summary> 
+        List<Func<EntityFilterContext, Expression>> Filters { get; }
     }
 }

@@ -24,6 +24,7 @@ using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
+using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -96,7 +97,16 @@ namespace Microsoft.Extensions.DependencyInjection
                     .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
                     .TryAddScoped<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
                     .TryAddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
-                    .TryAddScoped<ISqlServerConnection, SqlServerConnection>());
+                    .TryAddScoped<ISqlServerConnection, SqlServerConnection>()
+                    .TryAddTransient<IQueryFilters, QueryFilters>()
+                    .TryAddSingleton(_ => MethodInfoBasedNodeTypeRegistry.CreateFromRelinqAssembly())
+                    .TryAddScoped<IFinalQueryCacheKeyGenerator, FinalQueryCacheKeyGenerator>()
+                    .TryAddScoped<IQueryFiltersCacheKeyGenerator, QueryFiltersCacheKeyGenerator>()
+                    .TryAddScoped<IQueryFilterTypesCache, QueryFilterTypesCache>()
+                    .TryAddScoped<ICompiledQueryCache, CompiledQueryCache>()
+                    .TryAddScoped<IAsyncQueryProvider, EntityQueryProvider>()
+                    .TryAddScoped<IQueryParserFactory, QueryParserFactory>()
+                );
 
             builder.TryAddCoreServices();
 

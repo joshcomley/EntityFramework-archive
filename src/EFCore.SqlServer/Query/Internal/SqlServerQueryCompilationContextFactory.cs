@@ -26,15 +26,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override QueryCompilationContext Create(bool async)
+        public override QueryCompilationContext Create(IQueryFilters queryFilters, bool async)
             => async
                 ? new SqlServerQueryCompilationContext(
-                    Dependencies,
+                    Dependencies.With(queryFilters),
                     new AsyncLinqOperatorProvider(),
                     new AsyncQueryMethodProvider(),
                     TrackQueryResults)
                 : new SqlServerQueryCompilationContext(
-                    Dependencies,
+                    Dependencies.With(queryFilters),
                     new LinqOperatorProvider(),
                     new QueryMethodProvider(),
                     TrackQueryResults);

@@ -56,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             LinqOperatorProvider = linqOperatorProvider;
             ContextType = dependencies.CurrentContext.Context.GetType();
             TrackQueryResults = trackQueryResults;
+            QueryFilters = dependencies.QueryFilters;
         }
 
         /// <summary>
@@ -105,6 +106,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The query source mapping.
         /// </value>
         public virtual QuerySourceMapping QuerySourceMapping { get; } = new QuerySourceMapping();
+
+        /// <summary>
+        /// Query filters for this query context
+        /// </summary>
+        public IQueryFilters QueryFilters { get; }
 
         /// <summary>
         ///     Adds or updates the expression mapped to a query source.

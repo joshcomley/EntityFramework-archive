@@ -270,5 +270,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private InternalModelBuilder Builder => this.GetInfrastructure();
+
+        /// <summary>
+        /// The service provider to use when calling filters
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        /// <returns></returns>
+        public virtual ModelBuilder UseServiceProviderForFilters([NotNull]IServiceProvider serviceProvider)
+        {
+            Builder.Metadata.UseServiceProviderForFilters(serviceProvider);
+
+            return this;
+        }
     }
 }

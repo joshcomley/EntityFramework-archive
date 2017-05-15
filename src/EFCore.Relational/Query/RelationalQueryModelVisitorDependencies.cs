@@ -53,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IConditionalRemovingExpressionVisitorFactory conditionalRemovingExpressionVisitorFactory,
-            [NotNull] IDbContextOptions contextOptions)
+            [NotNull] IDbContextOptions contextOptions,
+            [NotNull] IQueryParserFactory queryParserFactory)
         {
             Check.NotNull(relationalResultOperatorHandler, nameof(relationalResultOperatorHandler));
             Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
@@ -62,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory));
             Check.NotNull(conditionalRemovingExpressionVisitorFactory, nameof(conditionalRemovingExpressionVisitorFactory));
             Check.NotNull(contextOptions, nameof(contextOptions));
+            Check.NotNull(queryParserFactory, nameof(queryParserFactory));
 
             RelationalResultOperatorHandler = relationalResultOperatorHandler;
             RelationalAnnotationProvider = relationalAnnotationProvider;
@@ -70,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             CompositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
             ConditionalRemovingExpressionVisitorFactory = conditionalRemovingExpressionVisitorFactory;
             ContextOptions = contextOptions;
+            QueryParserFactory = queryParserFactory;
         }
 
         /// <summary>
@@ -107,6 +110,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public IDbContextOptions ContextOptions { get; }
 
+        [NotNull]
+        public IQueryParserFactory QueryParserFactory { get; }
+
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
@@ -120,7 +126,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
-                ContextOptions);
+                ContextOptions,
+                QueryParserFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -135,7 +142,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
-                ContextOptions);
+                ContextOptions,
+                QueryParserFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -150,7 +158,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
-                ContextOptions);
+                ContextOptions,
+                QueryParserFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -165,7 +174,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 sqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
-                ContextOptions);
+                ContextOptions,
+                QueryParserFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -180,7 +190,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqlTranslatingExpressionVisitorFactory,
                 compositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
-                ContextOptions);
+                ContextOptions,
+                QueryParserFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -195,7 +206,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 conditionalRemovingExpressionVisitorFactory,
-                ContextOptions);
+                ContextOptions,
+                QueryParserFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -210,6 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
                 ConditionalRemovingExpressionVisitorFactory,
-                contextOptions);
+                contextOptions,
+                QueryParserFactory);
     }
 }

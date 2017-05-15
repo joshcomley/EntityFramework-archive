@@ -11,10 +11,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new QueryCompilationContext.
         /// </summary>
+        /// <param name="queryFilters"> Query filters for this query</param>
         /// <param name="async"> true if the query will be executed asynchronously. </param>
         /// <returns>
         ///     A <see cref="QueryCompilationContext" /> instance.
         /// </returns>
-        QueryCompilationContext Create(bool async);
+        QueryCompilationContext Create(IQueryFilters queryFilters, bool async);
     }
 }

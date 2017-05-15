@@ -5,11 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -1752,6 +1754,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             get { return _baseType; }
             set { HasBaseType((EntityType)value); }
         }
+        
+        /// <summary> 
+        /// The entity filters for this model 
+        /// </summary> 
+        public virtual List<Func<EntityFilterContext, Expression>> Filters { get; } = new List<Func<EntityFilterContext, Expression>>();
 
         IEntityType IEntityType.DefiningEntityType => DefiningEntityType;
 

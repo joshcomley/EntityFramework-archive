@@ -225,6 +225,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var shaper = CreateShaper(elementType, entityType, selectExpression);
 
+            selectExpression.Predicate = QueryModelVisitor.QueryFilterApplicator.ApplyFilterPredicates(
+                entityType.ClrType,
+                selectExpression.Predicate,
+                selectExpression);
+
             return Expression.Call(
                 QueryModelVisitor.QueryCompilationContext.QueryMethodProvider // TODO: Don't use ShapedQuery when projecting
                     .ShapedQueryMethod

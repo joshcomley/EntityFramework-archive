@@ -34,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class RelationalQueryModelVisitor : EntityQueryModelVisitor
     {
+        internal SelectExpression PredicateFilterSelectExpression;
         /// <summary>
         ///     The SelectExpressions for this query, mapped by query source.
         /// </summary>
@@ -83,6 +84,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             ContextOptions = relationalDependencies.ContextOptions;
             ParentQueryModelVisitor = parentQueryModelVisitor;
+            QueryFilterApplicator = new QueryFilterApplicator(
+                relationalDependencies.QueryParserFactory,
+                queryCompilationContext.QueryFilters,
+                relationalDependencies.SqlTranslatingExpressionVisitorFactory,
+                this);
         }
 
         /// <summary>
@@ -182,6 +188,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     true if the query model visitor can bind to its parent's properties, false if not.
         /// </value>
         public virtual bool CanBindToParentQueryModel { get; protected set; }
+
+        public QueryFilterApplicator QueryFilterApplicator { get; }
 
         /// <summary>
         ///     Gets a value indicating whether query model visitor's resulting expression
@@ -350,6 +358,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             foreach (var selectExpression in QueriesBySource.Values)
             {
                 compositePredicateVisitor.Visit(selectExpression);
+
+                // Apply filter predicates
+                QueryFilterApplicator.ApplyFilterPredicates(
+                    queryModel.SelectClause.Selector.Type,
+                    selectExpression);
             }
         }
 
@@ -1327,6 +1340,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = sqlTranslatingExpressionVisitor.Visit(
                     Expression.Equal(joinClause.OuterKeySelector, joinClause.InnerKeySelector));
 
+            // Apply filter predicates 
+            predicate = QueryFilterApplicator.ApplyFilterPredicates(joinClause.ItemType, predicate);
+
             if (predicate == null)
             {
                 return false;
@@ -1341,13 +1357,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ? innerSelectExpression.Projection
                     : Enumerable.Empty<Expression>();
 
+            var tableExpression = innerSelectExpression.Tables.Single();
+            var isInnerJoin = !QueryCompilationContext.QueryFilters.HasForType(tableExpression.QuerySource.ItemType);
+
             var joinExpression
-                = outerSelectExpression.AddInnerJoin(
-                    innerSelectExpression.Tables.Single(),
-                    projection,
-                    innerSelectExpression.Predicate);
+                = isInnerJoin ?
+                    outerSelectExpression.AddInnerJoin(
+                        tableExpression,
+                        projection,
+                        innerSelectExpression.Predicate) :
+                    outerSelectExpression.AddLeftOuterJoin(
+                        tableExpression,
+                        projection);
 
             joinExpression.Predicate = predicate;
+            joinExpression.Predicate = QueryFilterApplicator.ApplyFilterPredicates(
+                            tableExpression.QuerySource.ItemType,
+                            joinExpression.Predicate,
+                            innerSelectExpression);
+
             joinExpression.QuerySource = joinClause;
 
             var outerShaper = ExtractShaper(outerShapedQuery, 0);
@@ -1450,12 +1478,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ? innerSelectExpression.Projection
                     : Enumerable.Empty<Expression>();
 
+            var tableExpression = innerSelectExpression.Tables.Single();
             var joinExpression
                 = outerSelectExpression.AddLeftOuterJoin(
-                    innerSelectExpression.Tables.Single(),
+                    tableExpression,
                     projections);
 
             joinExpression.Predicate = predicate;
+            joinExpression.Predicate = QueryFilterApplicator.ApplyFilterPredicates(
+                tableExpression.QuerySource.ItemType,
+                joinExpression.Predicate,
+                innerSelectExpression);
+
             joinExpression.QuerySource = joinClause;
 
             if (TryFlattenGroupJoinDefaultIfEmpty(
@@ -1822,7 +1856,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             if (querySource != null)
             {
-                var selectExpression = TryGetQuery(querySource);
+                var selectExpression = PredicateFilterSelectExpression ?? TryGetQuery(querySource);
 
                 if (selectExpression == null
                     && bindSubQueries)

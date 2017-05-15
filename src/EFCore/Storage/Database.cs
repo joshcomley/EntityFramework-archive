@@ -65,10 +65,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <typeparam name="TResult"> The type of results returned by the query. </typeparam>
         /// <param name="queryModel"> An object model representing the query to be executed. </param>
+        /// <param name="queryFilters"> Query filters for this query</param>
         /// <returns> A function that will execute the query. </returns>
-        public virtual Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel)
+        public virtual Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel, IQueryFilters queryFilters)
             => Dependencies.QueryCompilationContextFactory
-                .Create(async: false)
+                .Create(queryFilters, async: false)
                 .CreateQueryModelVisitor()
                 .CreateQueryExecutor<TResult>(Check.NotNull(queryModel, nameof(queryModel)));
 
@@ -77,10 +78,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <typeparam name="TResult"> The type of results returned by the query. </typeparam>
         /// <param name="queryModel"> An object model representing the query to be executed. </param>
+        /// <param name="queryFilters"> Query filters for this query</param>
         /// <returns> A function that will asynchronously execute the query. </returns>
-        public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(QueryModel queryModel)
+        public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(QueryModel queryModel, IQueryFilters queryFilters)
             => Dependencies.QueryCompilationContextFactory
-                .Create(async: true)
+                .Create(queryFilters, async: true)
                 .CreateQueryModelVisitor()
                 .CreateAsyncQueryExecutor<TResult>(Check.NotNull(queryModel, nameof(queryModel)));
     }

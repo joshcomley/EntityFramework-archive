@@ -3,11 +3,13 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
@@ -514,6 +516,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Builder.UsePropertyAccessMode(propertyAccessMode, ConfigurationSource.Explicit);
 
             return this;
+        }
+
+        /// <summary>
+        /// Configures a filter for this entity
+        /// </summary>
+        /// <param name="filter"></param>
+        protected virtual void HasFilter([NotNull]Func<EntityFilterContext, Expression> filter)
+        {
+            Builder.Metadata.Filters.Add(filter);
         }
     }
 }

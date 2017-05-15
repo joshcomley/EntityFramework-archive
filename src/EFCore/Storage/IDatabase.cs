@@ -48,15 +48,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <typeparam name="TResult"> The type of results returned by the query. </typeparam>
         /// <param name="queryModel"> An object model representing the query to be executed. </param>
+        /// <param name="queryFilters"> Query filters for this query</param>
         /// <returns> A function that will execute the query. </returns>
-        Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>([NotNull] QueryModel queryModel);
+        Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>([NotNull] QueryModel queryModel, [NotNull]IQueryFilters queryFilters);
 
         /// <summary>
         ///     Translates a query model into a function that can be executed to asynchronously get query results from the database.
         /// </summary>
         /// <typeparam name="TResult"> The type of results returned by the query. </typeparam>
         /// <param name="queryModel"> An object model representing the query to be executed. </param>
+        /// <param name="queryFilters"> Query filters for this query</param>
         /// <returns> A function that will asynchronously execute the query. </returns>
-        Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>([NotNull] QueryModel queryModel);
+        Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>([NotNull] QueryModel queryModel, [NotNull]IQueryFilters queryFilters);
     }
 }
